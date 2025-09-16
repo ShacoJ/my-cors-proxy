@@ -22,7 +22,7 @@ export default async function handler(request, response) {
         // 我们只转发必要的头信息
         'Content-Type': 'application/json',
         // 如果目标 API 需要认证，可以在这里安全地添加密钥
-        // 'Authorization': `Bearer ${process.env.SOME_API_KEY}`
+        'Authorization': `Bearer ${process.env.SOME_API_KEY}`
       },
       // 如果前端请求有 body (例如 POST)，则将其转发
       body: request.body,
