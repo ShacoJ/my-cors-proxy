@@ -1,15 +1,14 @@
 // 文件路径: /api/proxy.js
-// 这是最终的、必将成功的代码
+// 这是与 vercel.json 配合使用的最终代码
 
 export default async function handler(request, response) {
-  // 1. 从完整的请求 URL 中，手动提取出需要代理的目标路径
-  // 例如，对于请求 /api/proxy/v1/models，request.url 就是这个值
-  // 我们将 "/api/proxy/" 这部分替换为空字符串，就得到了 "v1/models"
-  const apiPath = request.url.replace('/api/proxy/', '');
+  // 1. 感谢 vercel.json 的重写规则，我们现在可以从查询参数中获取路径
+  // 对于请求 /api/proxy/v1/models, `request.query.path` 的值就是 "v1/models"
+  const apiPath = request.query.path;
 
-  // 2. 检查路径是否为空
+  // 2. 检查路径是否存在
   if (!apiPath) {
-    return response.status(400).json({ error: 'The path to proxy is missing. URL should be /api/proxy/<path-to-resource>.' });
+    return response.status(400).json({ error: 'The path to proxy is missing.' });
   }
   
   // 3. 构造最终要请求的目标 URL
@@ -21,8 +20,8 @@ export default async function handler(request, response) {
     return response.status(500).json({ error: 'API key is not configured on the proxy server.' });
   }
 
-  console.log(`[SUCCESS] Proxying request for path: /${apiPath}`);
-  console.log(`[SUCCESS] Full target URL: ${targetUrl}`);
+  console.log(`[FORCED ROUTE SUCCESS] Proxying path: /${apiPath}`);
+  console.log(`[FORCED ROUTE SUCCESS] Target URL: ${targetUrl}`);
 
   try {
     const apiResponse = await fetch(targetUrl, {
@@ -34,6 +33,7 @@ export default async function handler(request, response) {
       body: request.body,
     });
     
+    // ... (其余部分保持不变)
     response.status(apiResponse.status);
     apiResponse.headers.forEach((value, key) => {
       if (key.toLowerCase() !== 'content-encoding' && key.toLowerCase() !== 'transfer-encoding') {
